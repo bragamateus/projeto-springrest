@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +16,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.bragamateus.socialbooks.domain.Livro;
 import com.bragamateus.socialbooks.services.LivrosService;
-import com.bragamateus.socialbooks.services.exceptions.LivroNaoEncontradoException;
 
 @RestController
 @RequestMapping("livros")
@@ -45,26 +43,14 @@ public class LivrosResources {
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	public ResponseEntity<?> buscar(@PathVariable Long id) {
-		Optional<Livro> livro = null;
-		
-		try {
-			livro = livrosService.buscar(id);
-		} catch (LivroNaoEncontradoException e) {
-			 
-			return ResponseEntity.notFound().build();
-		}
-		
+		Optional<Livro> livro = livrosService.buscar(id);
 		
 		return ResponseEntity.ok(livro.get());
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<Void> deletar(@PathVariable Long id) {
-		try {
-			livrosService.deletar(id);
-		} catch (LivroNaoEncontradoException e) {
-			return ResponseEntity.notFound().build();
-		}
+		livrosService.deletar(id);
 		
 		return ResponseEntity.noContent().build();
 		
@@ -74,13 +60,8 @@ public class LivrosResources {
 			@PathVariable Long id ) {
 		
 		livro.setId(id);
-		try {
-			livrosService.atualizar(livro);
-			
-		} catch (LivroNaoEncontradoException e) {
-			return ResponseEntity.noContent().build();
-		}
 		
+		livrosService.atualizar(livro);
 		
 		return ResponseEntity.noContent().build();
 	}
