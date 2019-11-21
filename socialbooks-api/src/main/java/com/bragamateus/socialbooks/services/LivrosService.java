@@ -68,5 +68,11 @@ public class LivrosService {
 		
 		return comentariosRepository.save(comentario);
 	}
+	
+	public List<Comentario> listarComentarios(Long livroId){
+		Optional<Livro> livro = buscar(livroId);
+		
+		return livro.get().getComentarios();
+	}
 
 }
