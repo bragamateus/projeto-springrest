@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -27,13 +28,15 @@ public class AutoresResource {
 	@Autowired
 	private AutoresService autoresService;
 	
-	@RequestMapping(method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET, produces = {
+			MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE
+	})
 	public ResponseEntity<List<Autor>> listar(){
 		return ResponseEntity.status(HttpStatus.OK).body(autoresService.listar());
 	}
 	
 	@RequestMapping(method = RequestMethod.POST )
-	public ResponseEntity<Void> salvar(@Valid @RequestBody Autor autor){
+	public ResponseEntity<Void> salvar(@Valid@RequestBody Autor autor){
 		autor = autoresService.salvar(autor);
 		
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
