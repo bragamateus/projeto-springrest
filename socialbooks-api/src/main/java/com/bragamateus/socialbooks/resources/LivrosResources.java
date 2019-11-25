@@ -3,11 +3,14 @@ package com.bragamateus.socialbooks.resources;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,11 +47,19 @@ public class LivrosResources {
 		return ResponseEntity.created(uri).build();
 	}
 	
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
-	public ResponseEntity<?> buscar(@PathVariable Long id) {
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = { 
+			
+	MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE
+	
+	})
+	public ResponseEntity<Livro> buscar(@PathVariable("id") Long id) {
 		Optional<Livro> livro = livrosService.buscar(id);
 		
-		return ResponseEntity.ok(livro.get());
+		CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.SECONDS);
+		
+		
+		return ResponseEntity.status(HttpStatus.OK).cacheControl(cacheControl).body(livro.get());
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
