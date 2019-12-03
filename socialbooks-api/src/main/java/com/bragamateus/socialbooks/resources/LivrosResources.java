@@ -10,8 +10,10 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,18 +50,12 @@ public class LivrosResources {
 	}
 	
 	
-	@RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = { 
-			
-	MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE
-	
-	})
-	public ResponseEntity<Livro> buscar(@PathVariable("id") Long id) {
+	@GetMapping("/{id}")
+	public ResponseEntity<?> buscar(@PathVariable("id") Long id) {
 		Optional<Livro> livro = livrosService.buscar(id);
+		CacheControl cacheControl = CacheControl.maxAge(1, TimeUnit.MINUTES);
 		
-		CacheControl cacheControl = CacheControl.maxAge(30, TimeUnit.SECONDS);
-		
-		
-		return ResponseEntity.status(HttpStatus.OK).cacheControl(cacheControl).body(livro.get());
+		return ResponseEntity.ok().cacheControl(cacheControl).body(livro);
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
@@ -83,6 +79,10 @@ public class LivrosResources {
 	@RequestMapping(value = "/{id}/comentarios", method = RequestMethod.POST)
 	public ResponseEntity<Void> adicionarComentario(@PathVariable("id") Long livroId, 
 			@RequestBody Comentario comentario ) {
+		
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		comentario.setUsuario(auth.getName());
 		
 		livrosService.salvarComentario(livroId, comentario);
 		
